@@ -10,7 +10,7 @@
 ### 🛠 기술 스택 (Tech Stack)
 - **Languages:** ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![C++](https://img.shields.io/badge/C%2B%2B-00599C?style=flat-square&logo=c%2B%2B&logoColor=white)
 - **Hardware:** ![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi-A22846?style=flat-square&logo=raspberry-pi&logoColor=white) ![Arduino](https://img.shields.io/badge/Arduino-00979D?style=flat-square&logo=arduino&logoColor=white) ![NVIDIA](https://img.shields.io/badge/Jetson%20Orin%20Nano-76B900?style=flat-square&logo=nvidia&logoColor=white)
-- **CAD/Engineering:** AutoCAD, NX, CATIA
+- **CAD/Engineering:** AutoCAD
 
 ### 🏆 수상 및 경력
 - 2024 전주 ICT 이노베이션 스퀘어 아이디어톤 **대상**
