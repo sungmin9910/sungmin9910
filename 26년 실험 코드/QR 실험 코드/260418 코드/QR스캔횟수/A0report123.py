@@ -1,3 +1,4 @@
+#라이브러리가 많다 해결책이 필요하다.
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import xml.etree.ElementTree as ET
