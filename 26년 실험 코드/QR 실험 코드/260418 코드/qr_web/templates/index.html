@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>QR 스캔 데이터 - SmartFarm Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+    <style>
+        /* 사이드바 고정 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px; /* 사이드바의 너비 */
+            height: 100vh; /* 화면 높이에 맞게 고정 */
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            overflow-y: auto; /* 내용이 많을 경우 스크롤 가능 */
+        }
+
+        /* 사이드바의 이미지 크기 조정 */
+        .sidebar .fruit-thumb {
+            width: 2em;
+            height: 2em;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+
+        /* 페이지 레이아웃 */
+        .page-container {
+            display: flex;
+            flex-direction: row;
+            margin-left: 250px;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* 메인 이미지 크기 */
+        .fruit-main-img {
+            width: 6em;
+            height: 6em;
+            object-fit: contain;
+        }
+
+        /* 검색창 */
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        h5, h6 {
+            font-weight: bold;
+        }
+
+        /* 네비게이션 */
+        .nav-link {
+            color: white;
+        }
+
+        .nav-link:hover {
+            background-color: #575757;
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <!-- ✅ 페이지 컨테이너 -->
+        <div class="page-container">
+            <!-- ✅ 사이드바 -->
+            <div class="sidebar">
+                <h5 class="text-center mb-4">🍎 과일 도감</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link {% if not selected_fruit %}active text-white fw-bold{% else %}text-light{% endif %}" href="/">
+                            전체 보기
+                        </a>
+                    </li>
+                    {% for fruit in fruit_types %}
+                        <li class="nav-item mb-2">
+                            <a class="nav-link {% if selected_fruit == fruit %}active text-white fw-bold{% else %}text-light{% endif %}" href="/fruit/{{ fruit }}">
+                                <img src="{{ url_for('static', filename='image/' + fruit + '.png') }}" class="fruit-thumb">{{ fruit }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h6 class="mt-4">과일 도감</h6>
+                <ul class="nav flex-column">
+                    {% for fruit in fruit_types %}
+                        <li class="nav-item mb-2">
+                            <a class="nav-link" href="/fruit/encyclopedia/{{ fruit }}">
+                                <img src="{{ url_for('static', filename='image/' + fruit + '.png') }}" class="fruit-thumb">{{ fruit }} 도감
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- ✅ 메인 콘텐츠 -->
+            <div class="main-content">
+                <!-- ✅ 검색창 -->
+                <form method="get" action="/" class="search-bar mb-4">
+                    <div class="input-group">
+                        <input type="text" name="fm_id" class="form-control" value="{{ fm_id_search }}" placeholder="FmID 검색" />
+                        <button class="btn btn-primary" type="submit">검색</button>
+                    </div>
+                </form>
+
+                <div class="col-md-10 mt-4">
+                    <div class="text-center mb-4">
+                        {% if selected_fruit %}
+                            <!-- ✅ 이미지 + 텍스트를 가로 정렬 -->
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <img src="{{ url_for('static', filename='image/' + selected_fruit + '.png') }}" 
+                                     alt="{{ selected_fruit }}" class="fruit-main-img">
+                                <h2 class="text-primary mb-0">{{ selected_fruit }} 데이터</h2>
+                            </div>
+                        {% else %}
+                            <h2 class="text-primary">전체 QR 스캔 데이터</h2>
+                        {% endif %}
+                        <p class="text-muted">총 {{ records|length }}건</p>
+                    </div>
+
+                    <div class="content">
+                        {% for row in records %}
+                            <div class="card mb-3 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">{{ row.FrT }} - {{ row.Vt }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>
+                                                <strong>FmID:</strong> 
+                                                <a href="{{ url_for('trace', fmid=row.FmID) }}" class="fw-bold text-decoration-none">
+                                                    {{ row.FmID }}
+                                                </a> 
+                                                <small class="text-muted">(관리자용 이력 추적)</small> 
+                                            </p>
+                                            <p>
+                                                <strong>소비자 QR 링크:</strong>
+                                                <a href="{{ url_for('qr_trace', fmid=row.FmID) }}" target="_blank" class="fw-bold text-success text-decoration-none">
+                                                    소비자 페이지 열기 
+                                                </a>
+                                                <small class="text-muted"> (이 링크를 QR코드로 변환)</small>
+                                            </p>
+                                            <p>
+                                                <strong>현재 공정:</strong> 
+                                                <span class="fw-bold text-danger">{{ row.Lo }}</span>
+                                            </p>
+                                            <p><strong>APC 도착 시간:</strong> {{ row.APC_AD }}</p>
+                                        </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- ✅ 페이지네이션 -->
+                    <div class="pagination">
+                        {% if current_page > 1 %}
+                            <a href="?page={{ current_page - 1 }}&fm_id={{ fm_id_search }}" class="btn btn-primary">이전</a>
+                        {% endif %}
+
+                        <span>페이지 {{ current_page }} / {{ total_pages }}</span>
+
+                        {% if current_page < total_pages %}
+                            <a href="?page={{ current_page + 1 }}&fm_id={{ fm_id_search }}" class="btn btn-primary">다음</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

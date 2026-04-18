@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>APC 창고 디지털 트윈 (A14)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #2c3e50; color: white; font-family: 'Nanum Gothic', sans-serif; }
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #34495e;
+            z-index: 10;
+        }
+        .warning { color: #e74c3c; font-weight: bold; font-size: 1.2em; animation: blink 1s infinite; }
+        .normal { color: #2ecc71; font-weight: bold; font-size: 1.2em; }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="info-panel">
+        <h2>🌐 가상 창고 구역 (A14)</h2>
+        <p>온도: <span id="temp-val">--</span> ℃</p>
+        <p>습도: <span id="hum-val">--</span> %</p>
+        <p>최종 업데이트: <span id="time-val">--</span></p>
+        <p id="status-msg" class="normal">상태: 정상 (데이터 수신 대기)</p>
+    </div>
+
+    <script>
+        // 1. 3D 씬(Scene), 카메라, 렌더러 설정
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. 가상 창고 객체(큐브) 생성
+        const geometry = new THREE.BoxGeometry(3, 3, 3);
+        const material = new THREE.MeshPhongMaterial({ color: 0x2ecc71, transparent: true, opacity: 0.8 }); // 초기 초록색
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // 3. 3D 조명 추가
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        camera.position.z = 7;
+
+        // 4. 애니메이션 루프 (큐브 회전)
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.005;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 5. 실시간 데이터 동기화 로직 (디지털 트윈의 핵심)
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('/api/sensor');
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('temp-val').innerText = data.temperature;
+                    document.getElementById('hum-val').innerText = data.humidity;
+                    document.getElementById('time-val').innerText = data.timestamp;
+
+                    // 상태 기반 시각화 연동 (온도가 25도 이상이면 위험 경고)
+                    if (data.temperature >= 25.0) {
+                        cube.material.color.setHex(0xe74c3c); // 큐브를 빨간색으로 변경
+                        document.getElementById('status-msg').className = 'warning';
+                        document.getElementById('status-msg').innerText = '상태: 경고! 적정 온도 초과';
+                    } else {
+                        cube.material.color.setHex(0x2ecc71); // 큐브를 초록색으로 유지
+                        document.getElementById('status-msg').className = 'normal';
+                        document.getElementById('status-msg').innerText = '상태: 적정 온도 유지 중';
+                    }
+                }
+            } catch (error) {
+                console.error("데이터 통신 에러:", error);
+            }
+        }
+
+        // 2초마다 백엔드에 최신 상태를 물어보고 3D 객체를 업데이트합니다.
+        setInterval(fetchSensorData, 2000);
+        fetchSensorData();
+
+        // 화면 크기 반응형 처리
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>

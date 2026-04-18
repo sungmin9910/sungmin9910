@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제품 이력 정보 - {{ fmid }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .consumer-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+        .encyclopedia-screenshot {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="consumer-header">
+            <h1 class="text-primary">🍎 신선한 과일 이야기</h1>
+            <p class="lead">이 제품(FmID: <span class="fw-bold text-success">{{ fmid }}</span>)이 고객님께 오기까지의 과정입니다.</p>
+        </div>
+        
+        {% if records %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">✅ 제품 요약 정보</h4>
+                </div>
+                <div class="card-body">
+                    <p class="fs-5"><strong>과일:</strong> {{ records[0].FrT }} ({{ records[0].Vt }})</p>
+                    <p class="fs-5"><strong>농장명:</strong> {{ records[0].FmID }}</p>
+                    <p class="fs-5"><strong>원산지 코드:</strong> {{ records[0].AC }}</p>
+                    <p class="fs-5"><strong>수확일:</strong> {{ records[0].HD if records[0].HD else '기록 없음' }}</p>
+                    <p class="fs-5"><strong>마트 도착일:</strong> {{ records[-1].APC_OP if records[-1].APC_OP else '기록 없음' }}</p>
+                    
+                    {% if single_grade %}
+                        <p class="fs-5"><strong>등급:</strong> <span class="fw-bold text-success">{{ single_grade }}</span></p>
+                    {% else %}
+                        <p class="fs-5"><strong>등급 (상/중/하):</strong> {{ records[-1].AGrade }} / {{ records[-1].BGrade }} / {{ records[-1].CGrade }} (개)</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if encyclopedia_link and encyclopedia_image %}
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">📖 과일 도감 정보</h4>
+                </div>
+                <div class="card-body text-center">
+                    <p class="card-text">
+                        <strong>{{ records[0].FrT }}</strong>에 대한 더 자세한 정보를 확인해 보세요.
+                    </p>
+                    
+                    <div class="encyclopedia-screenshot">
+                        <img src="{{ url_for('static', filename=encyclopedia_image) }}" class="img-fluid rounded" alt="{{ records[0].FrT }} 도감 정보">
+                    </div>
+
+                    <a href="{{ encyclopedia_link }}" class="btn btn-success" target="_blank">
+                        {{ records[0].FrT }} 도감 보러가기
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <div class="alert alert-warning">
+                해당 제품(FmID: {{ fmid }})에 대한 이력 정보가 없습니다.
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+[
+    {
+        "timestamp": "2026-01-19 11:38:52",
+        "hash": "e0e51a478b8ee5339fd0437888fdff111d6aa6edafe7ef06718b620adde90893",
+        "metadata": {
+            "FarmerID": "15",
+            "Date": "2026-01-19"
+        }
+    },
+    {
+        "timestamp": "2026-01-19 11:54:28",
+        "hash": "e0e51a478b8ee5339fd0437888fdff111d6aa6edafe7ef06718b620adde90893",
+        "metadata": {
+            "FarmerID": "15",
+            "Date": "2026-01-19"
+        }
+    },
+    {
+        "timestamp": "2026-03-09 12:58:11",
+        "hash": "b7c4788dcf19952820467815918a2837d8e7e6e0f9d0da744cccd9562223751b",
+        "metadata": {
+            "FmID": "78",
+            "Type": "Grading Result"
+        },
+        "stage": "A12 (Sorting & Grading)"
+    },
+    {
+        "timestamp": "2026-03-09 13:35:50",
+        "hash": "c99eb3a018f6b70bd27aeab384b91665bd7d44696987a8bf04bee85d322cf40d",
+        "metadata": {
+            "FmID": "78",
+            "Type": "Grading Result"
+        },
+        "stage": "A12 (Sorting & Grading)"
+    },
+    {
+        "timestamp": "2026-03-30 16:09:55",
+        "hash": "c42f0ac7c41beaaccc91788185d104de15945c96acf849b340f0870bad67c4af",
+        "metadata": {
+            "FmID": "99",
+            "Type": "Grading Result"
+        },
+        "stage": "A12 (Sorting & Grading)"
+    }
+]
