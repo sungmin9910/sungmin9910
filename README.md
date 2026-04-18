@@ -13,7 +13,7 @@
 - **CAD/Engineering:** AutoCAD
 
 ### 🛠 자격증 (Lisence & Certificate)
-- 컴퓨터활용능력 2급<embed src="/workspaces/sungmin9910/개인폴더/자격증/컴활2급 자격증.pdf" width="300px" height="200pxpx" type="application/pdf">
+- [컴퓨터활용능력 2급] (./workspaces/sungmin9910/개인폴더/자격증/컴활2급 자격증.pdf)
 - ADsP(데이터분석 준전문가)()<embed src="/workspaces/sungmin9910/개인폴더/자격증/ADSP 자격증.pdf" width="300px" height="200px" type="application/pdf">
 - 한국사검정능력시험 2급()<embed src="/workspaces/sungmin9910/개인폴더/자격증/한성민 한국사 2급.pdf" width="300px" height="200px" type="application/pdf">
 - MOS(Excel, Powerpoint 2010)
