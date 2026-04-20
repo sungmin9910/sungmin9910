@@ -1,0 +1,30 @@
+def generate_qr_code():
+    file_path_xml = filedialog.askopenfilename(filetypes=[("XML Files", "*.xml")])
+
+    if file_path_xml:
+        try:
+            with open(file_path_xml, 'r') as xml_file:
+                xml_content = xml_file.read()
+
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=7,
+                border=4,
+            )
+            qr.add_data(xml_content)
+            qr.make(fit=True)
+
+            img = qr.make_image(fill='black', back_color='white')
+
+            qr_image = ImageTk.PhotoImage(img)
+
+            qr_label.config(image=qr_image)
+            qr_label.image = qr_image
+
+            requests.get("http://127.0.0.1:5000/scan")
+        except Exception as e:
+            status_label_main_section.config(text=f"Error: {str(e)}")
+    else:
+        status_label_main_section.config(
+            text="Please select a valid XML file.")

@@ -1,0 +1,51 @@
+def generate_qr_code_with_image():
+    area_code = area_code_combobox.get()
+    farmer_id = farmer_id_entry.get()
+    fruit_type = fruit_type_combobox.get()
+    variety = variety_combobox.get()
+    contact_info = contact_info_entry.get()
+    harvest_date = get_selected_harvest_date()
+    deliver_date = get_selected_deliver_date()
+    quality = quality_combobox.get()
+
+    farm_info = f"Area Code: {area_code}\nFarmer ID: {farmer_id}\nFruit type: {fruit_type}\nVariety: {variety}\nContact Info: {contact_info}\nHarvest Date: {harvest_date.strftime('%Y-%m-%d')}\nDeliver Date: {deliver_date.strftime('%Y-%m-%d')}\nQuality: {quality}"
+
+    # QR코드 생성
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(farm_info)
+    qr.make(fit=True)
+    qr_image = qr.make_image(fill_color="black", back_color="white")
+
+    # QR코드 이미지 크기 가져오기
+    qr_width, qr_height = qr_image.size
+    
+    # 과일 종류에 따라 이미지를 추가
+    if fruit_type == "Apples":
+        image_path = 'X:\ampmi\public\QR스캔횟수\ap_hi.png'
+    elif fruit_type == "Pears":
+        image_path = 'X:\ampmi\public\QR스캔횟수\ap_hi.png'
+    elif fruit_type == "Peaches":
+        image_path = 'X:\ampmi\public\QR스캔횟수\ap_hi.png'
+    elif fruit_type == "Tangerines":
+        image_path = 'X:\ampmi\public\QR스캔횟수\ap_hi.png'
+    elif fruit_type == "Melons":
+        image_path = 'X:\ampmi\public\QR스캔횟수\ap_hi.png'
+    else:
+        image_path = 'default_image.png'  # 기본값
+
+     # 이미지 열기
+    fruit_image = Image.open(image_path)
+
+    # 이미지 크기 조정
+    fruit_image = fruit_image.resize((qr_width // 3, qr_height // 3))
+
+    # QR코드 이미지에 과일 이미지 붙이기
+    qr_image.paste(fruit_image, ((qr_width - fruit_image.width) // 2, (qr_height - fruit_image.height) // 2))
+
+    # 이미지를 화면에 표시
+    qr_image.show()

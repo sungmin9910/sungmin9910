@@ -1,0 +1,49 @@
+def save_data_to_excel(file_path, data):
+    try:
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["Area Code", "Farmer ID", "Fruit Type", "Variety", "Contact Info", "Harvest Date", "Deliver Date"])
+        for item in data:
+            ws.append(item)
+        wb.save(file_path)
+    except Exception as e:
+        status_label_main_section.config(text=f"Error while saving data to Excel: {str(e)}")
+
+def save_data_to_pdf(file_path, area_code, farmer_id, fruit_type, variety, contact_info, harvest_date, deliver_date):
+    try:
+        c = canvas.Canvas(file_path, pagesize=letter)
+        c.setFont("Helvetica", 12)
+        c.drawString(100, 700, "Farm Information")
+        c.drawString(100, 650, f"Area Code: {area_code}")
+        c.drawString(100, 630, f"Farmer ID: {farmer_id}")
+        c.drawString(100, 610, f"Fruit Type: {fruit_type}")
+        c.drawString(100, 590, f"Variety: {variety}")
+        c.drawString(100, 570, f"Contact Info: {contact_info}")
+        c.drawString(100, 550, f"Harvest Date: {harvest_date.strftime('%Y-%m-%d')}")
+        c.drawString(100, 530, f"Deliver Date: {deliver_date.strftime('%Y-%m-%d')}")
+        c.save()
+    except Exception as e:
+        status_label_main_section.config(text=f"Error while saving data to PDF: {str(e)}")
+
+def save_data_to_xml(file_path, area_code, farmer_id, fruit_type, variety, contact_info, harvest_date, deliver_date):
+    try:
+        root = ET.Element("FarmData")
+        item = ET.SubElement(root, "Item")
+        area_code_elem = ET.SubElement(item, "AreaCode")
+        area_code_elem.text = area_code
+        farmer_id_elem = ET.SubElement(item, "FarmerID")
+        farmer_id_elem.text = farmer_id
+        fruit_type_elem = ET.SubElement(item, "FruitType")
+        fruit_type_elem.text = fruit_type
+        variety_elem = ET.SubElement(item, "Variety")
+        variety_elem.text = variety
+        contact_info_elem = ET.SubElement(item, "ContactInfo")
+        contact_info_elem.text = contact_info
+        harvest_date_elem = ET.SubElement(item, "HarvestDate")
+        harvest_date_elem.text = harvest_date.strftime('%Y-%m-%d')
+        deliver_date_elem = ET.SubElement(item, "DeliverDate")
+        deliver_date_elem.text = deliver_date.strftime('%Y-%m-%d')
+        tree = ET.ElementTree(root)
+        tree.write(file_path)
+    except Exception as e:
+        status_label_main_section.config(text=f"Error while saving data to XML: {str(e)}")
