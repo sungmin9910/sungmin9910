@@ -38,6 +38,28 @@ sudo cp ~/librealsense/config/99-realsense-libusb.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && udevadm trigger
 ```
 
+## 5. 가상 환경에서 TensorRT 인식 실패 (ModuleNotFoundError)
+젯슨의 시스템에 설치된 TensorRT 라이브러리가 가상 환경(`venv`) 내에서는 보이지 않아 발생합니다.
+
+- **해결방법**: 시스템 라이브러리 폴더를 가상 환경의 `site-packages`로 심볼릭 링크(연결) 처리했습니다.
+```bash
+SITEPKGS=~/st_env/lib/python3.10/site-packages
+ln -sf /usr/lib/python3.10/dist-packages/tensorrt* $SITEPKGS/
+ln -sf /usr/lib/python3.10/dist-packages/graphsurgeon* $SITEPKGS/
+ln -sf /usr/lib/python3.10/dist-packages/onnx_graphsurgeon* $SITEPKGS/
+```
+
+## 6. YOLO11s 모델 변환 및 명명 규칙
+최신 Ultralytics YOLO11 모델을 젯슨 하드웨어에 최적화된 `.engine`(TensorRT) 형식으로 변환하는 과정입니다.
+
+- **주의사항**: 모델 이름에서 `v`를 제외한 `yolo11s.pt` 형식을 사용해야 자동 다운로드가 활성화됩니다.
+- **최적화 옵션**: `half=True`(FP16) 및 `device=0`(GPU) 옵션을 사용하여 젯슨 오린 나노의 Tensor Core 성능을 극대화했습니다.
+```bash
+# TensorRT 엔진 변환 명령어
+python3 -c "from ultralytics import YOLO; model = YOLO('yolo11s.pt'); model.export(format='engine', half=True, device=0)"
+```
+- **성능 결과**: 변환 후 이전 Nano 모델(PyTorch)보다 **정확도는 월등히 높으면서도 속도는 실시간 수준**을 유지함.
+
 ---
 > [!TIP]
 > 젯슨에서 새로운 가상 환경을 만들 때는 반드시 `python3 -m venv <name>` 이후 `source <name>/bin/activate` 절차를 지켜야 하며, PyTorch 설치 시 젯슨 전용 인덱스(`https://pypi.jetson-ai-lab.io/jp6/cu126`)를 사용해야 합니다.
