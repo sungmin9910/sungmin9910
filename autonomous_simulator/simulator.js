@@ -75,9 +75,9 @@ class Simulator {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
 
-        // --- 위치 설정 (전북대학교 공과대학 인근) ---
-        this.origin = { lat: 35.8468, lon: 127.1297 };
-        this.zoom = 18; // 위성 지도 줌 레벨
+        // --- 위치 설정 (전북대학교 정문 인근 - 스트리트 뷰가 확실한 곳) ---
+        this.origin = { lat: 35.8441, lon: 127.1293 }; 
+        this.zoom = 18;
 
         // --- 자율주행 상태 변수 ---
         this.target = null;
@@ -164,20 +164,20 @@ class Simulator {
         // 1. 위성 지도 로딩 (실패 시를 대비해 여러 서버 시도 또는 세련된 그리드 배경)
         // 전북대학교 공과대학 부근 (Esri 위성 지도)
         const satelliteTexture = loader.load(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/17/55593/104975',
+            'https://tile.openstreetmap.org/17/111818/51034.png', // 표준 OSM 타일 시도
             undefined, 
             undefined,
             (err) => {
-                console.error("Texture Load Failed, using fallback grid.");
+                console.warn("Satellite Texture failed, using premium grid layout.");
             }
         );
         
         const groundGeo = new THREE.PlaneGeometry(tileSize, tileSize);
         const groundMat = new THREE.MeshStandardMaterial({ 
             map: satelliteTexture,
-            color: 0x112233, // 텍스처 로드 전 기본 색상 (어두운 청색)
-            roughness: 0.8,
-            metalness: 0.1
+            color: 0x050810, // 어두운 네이비
+            roughness: 0.5,
+            metalness: 0.5
         });
 
         const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -186,12 +186,21 @@ class Simulator {
         ground.name = "ground";
         this.scene.add(ground);
 
-        // 2. 바닥에 세련된 오버레이 그리드 추가 (위성 지도가 없어도 멋지게 보이도록)
-        const grid = new THREE.GridHelper(tileSize, 40, 0x00f2ff, 0x111111);
-        grid.position.y = 0.05;
-        grid.material.opacity = 0.2;
+        // 2. 바닥에 세련된 오버레이 그리드 (더 선명하고 미래지향적으로)
+        const grid = new THREE.GridHelper(tileSize, 80, 0x00f2ff, 0x111111);
+        grid.position.y = 0.1;
+        grid.material.opacity = 0.3;
         grid.material.transparent = true;
         this.scene.add(grid);
+
+        // 메인 도로를 시각적으로 강조
+        const mainRoad = new THREE.Mesh(
+            new THREE.PlaneGeometry(12, tileSize),
+            new THREE.MeshStandardMaterial({ color: 0x111111, transparent: true, opacity: 0.6 })
+        );
+        mainRoad.rotation.x = -Math.PI / 2;
+        mainRoad.position.y = 0.05;
+        this.scene.add(mainRoad);
     }
 
     createCampusBuildings() {
@@ -378,10 +387,15 @@ class Simulator {
         const iframe = document.getElementById('street-view-iframe');
         
         if (!this.lastUpdatePos || this.car.position.distanceTo(this.lastUpdatePos) > 3.0) {
-            // cbll: 좌표, cbp: 12 (카메라 제어), heading, pitch, zoom 등
-            const streetViewUrl = `https://maps.google.com/maps?q=&layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,10&ie=UTF8&source=embed&output=embed`;
+            // cbll: 좌표, cbp: 거리뷰 파라미터 최적화
+            // google.com/maps/@{lat},{lon},{zoom}z/data=!3m1!1e3?hl=ko
+            // 임베드용 가장 강력한 거리뷰 호출 방식:
+            const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=YOUR_API_KEY&location=${lat},${lon}&heading=${heading}&pitch=0&fov=90`;
             
-            iframe.src = streetViewUrl;
+            // API Key가 없을 때의 대체 임베드 방식 (더 강력한 파라미터 조합)
+            const fallbackUrl = `https://maps.google.com/maps?layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,10&source=browser&output=embed`;
+            
+            iframe.src = fallbackUrl;
             this.lastUpdatePos = this.car.position.clone();
         }
     }
