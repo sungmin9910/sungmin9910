@@ -75,6 +75,10 @@ class Simulator {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
 
+        // --- 위치 설정 (전북대학교 공과대학 인근) ---
+        this.origin = { lat: 35.8468, lon: 127.1297 };
+        this.zoom = 18; // 위성 지도 줌 레벨
+
         // --- 자율주행 상태 변수 ---
         this.target = null;
         this.obstacles = [];
@@ -146,89 +150,75 @@ class Simulator {
     }
 
     initWorld() {
-        // 1. Ground - Large Warehouse Floor
-        const groundGeo = new THREE.PlaneGeometry(500, 500);
+        // 1. Satellite Map Ground
+        this.createSatelliteMap();
+
+        // 2. Clear procedural objects and only add some test obstacles
+        this.createScatteredObstacles();
+    }
+
+    createSatelliteMap() {
+        // Esri World Imagery (Public Tile Server)
+        // Zoom 18 at Jeonbuk Nat'l Univ
+        const tileCount = 3; // 3x3 grid
+        const tileSize = 100; // 100m per tile in 3D
+        
+        const loader = new THREE.TextureLoader();
+        const groundGeo = new THREE.PlaneGeometry(tileSize, tileSize);
+        
+        // 간단하게 중심 타일 하나와 주변 타일들을 로드 (실제 좌표 계산 로직은 복잡하므로 여기서는 시연용으로 고정 타일 주소 사용 가능)
+        // 전북대학교 근처 타일 예시 (실제로는 위/경도 -> 타일 번호 변환 필요)
+        // 여기서는 시연을 위해 고해상도 위성 이미지 느낌의 텍스처를 로드하는 방식으로 구현
+        const satelliteTexture = loader.load('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/104975/222340');
+        
         const groundMat = new THREE.MeshStandardMaterial({ 
-            color: 0x080808,
-            roughness: 0.9,
+            map: satelliteTexture,
+            roughness: 0.8,
             metalness: 0.1
         });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
+
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         ground.name = "ground";
         this.scene.add(ground);
 
-        // 2. Complex Road System (Crossroads & Loops)
-        this.createComplexRoads();
-
-        // 3. Dense Warehouse Buildings
-        this.createDenseBuildings();
-
-        // 4. Random Obstacles (Crates, Barriers)
-        this.createScatteredObstacles();
+        // 추가적인 건물 데코레이션 (실제 맵 느낌을 위해)
+        this.createCampusBuildings();
     }
 
-    createComplexRoads() {
-        // Main Grid Road System
-        const roadMat = new THREE.MeshStandardMaterial({ color: 0x151515 });
-        
-        // Vertical Roads
-        const vRoads = [-50, 0, 50];
-        vRoads.forEach(x => {
-            const road = new THREE.Mesh(new THREE.PlaneGeometry(12, 300), roadMat);
-            road.rotation.x = -Math.PI / 2;
-            road.position.set(x, 0.01, 0);
-            this.scene.add(road);
+    createCampusBuildings() {
+        // 위성 지도 위의 주요 건물들을 투명한 박스로 시뮬레이션
+        const buildingMat = new THREE.MeshStandardMaterial({ 
+            color: 0x222222, 
+            transparent: true, 
+            opacity: 0.4,
+            wireframe: false 
         });
 
-        // Horizontal Roads
-        const hRoads = [-50, 0, 50];
-        hRoads.forEach(z => {
-            const road = new THREE.Mesh(new THREE.PlaneGeometry(300, 12), roadMat);
-            road.rotation.x = -Math.PI / 2;
-            road.position.set(0, 0.01, z);
-            this.scene.add(road);
-        });
-    }
-
-    createDenseBuildings() {
-        const boxMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
-        const positions = [
-            [-25, 5, -25], [25, 5, -25], [-25, 5, 25], [25, 5, 25],
-            [-75, 8, 0], [75, 8, 0], [0, 8, -75], [0, 8, 75]
+        const boxes = [
+            { pos: [-30, 5, -40], size: [20, 10, 40] },
+            { pos: [40, 5, 20], size: [30, 15, 20] },
+            { pos: [-50, 5, 60], size: [15, 8, 30] }
         ];
 
-        positions.forEach(pos => {
-            const size = Math.random() * 10 + 10;
-            const height = Math.random() * 15 + 5;
-            const building = new THREE.Mesh(new THREE.BoxGeometry(size, height, size), boxMat);
-            building.position.set(pos[0], height/2, pos[2]);
-            building.castShadow = true;
-            this.scene.add(building);
-            this.obstacles.push(building);
-
-            // Detail lights
-            const lightGeo = new THREE.PlaneGeometry(1, 4);
-            const lightMat = new THREE.MeshStandardMaterial({ color: 0x00f2ff, emissive: 0x00f2ff, emissiveIntensity: 5 });
-            const lightStrip = new THREE.Mesh(lightGeo, lightMat);
-            lightStrip.position.set(pos[0], height/2, pos[2] + size/2 + 0.1);
-            this.scene.add(lightStrip);
+        boxes.forEach(b => {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(...b.size), buildingMat);
+            mesh.position.set(...b.pos);
+            this.scene.add(mesh);
+            this.obstacles.push(mesh);
         });
     }
 
     createScatteredObstacles() {
         const crateGeo = new THREE.BoxGeometry(2, 2, 2);
-        const crateMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+        const crateMat = new THREE.MeshStandardMaterial({ color: 0xffa500, emissive: 0xffa500, emissiveIntensity: 0.2 });
         
-        // Randomly place obstacles on roads to test avoidance
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 20; i++) {
             const crate = new THREE.Mesh(crateGeo, crateMat);
-            // Place some on roads
-            const x = (Math.random() - 0.5) * 150;
-            const z = (Math.random() - 0.5) * 150;
+            const x = (Math.random() - 0.5) * 200;
+            const z = (Math.random() - 0.5) * 200;
             crate.position.set(x, 1, z);
-            crate.rotation.y = Math.random() * Math.PI;
             this.scene.add(crate);
             this.obstacles.push(crate);
         }
