@@ -83,8 +83,8 @@ class Simulator {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
 
-        // --- 위치 설정 (전북대학교 정문 인근 - 스트리트 뷰가 확실한 곳) ---
-        this.origin = { lat: 35.8441, lon: 127.1293 }; 
+        // --- 위치 설정 (전북대학교 정문 앞 교차로 - 스트리트 뷰 최적 지점) ---
+        this.origin = { lat: 35.84412, lon: 127.12928 }; 
         this.zoom = 18;
 
         // --- 자율주행 상태 변수 ---
@@ -171,21 +171,21 @@ class Simulator {
         
         // 1. 위성 지도 로딩 (실패 시를 대비해 여러 서버 시도 또는 세련된 그리드 배경)
         // 전북대학교 공과대학 부근 (Esri 위성 지도)
+        // 구글 위성 지도 타일 서버 (가장 확실한 로딩)
+        // 전북대 부근 타일 좌표 계산 (Zoom 18)
         const satelliteTexture = loader.load(
-            'https://tile.openstreetmap.org/17/111818/51034.png', // 표준 OSM 타일 시도
+            'https://mt1.google.com/vt/lyrs=s&x=222340&y=104975&z=18', 
             undefined, 
             undefined,
-            (err) => {
-                console.warn("Satellite Texture failed, using premium grid layout.");
-            }
+            (err) => { console.warn("Google Tiles failed, using fallback."); }
         );
         
         const groundGeo = new THREE.PlaneGeometry(tileSize, tileSize);
         const groundMat = new THREE.MeshStandardMaterial({ 
             map: satelliteTexture,
-            color: 0x050810, // 어두운 네이비
-            roughness: 0.5,
-            metalness: 0.5
+            color: 0x223344,
+            roughness: 0.6,
+            metalness: 0.4
         });
 
         const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -396,6 +396,9 @@ class Simulator {
             // Update UI
             document.getElementById('pos-x').innerText = this.car.position.x.toFixed(1);
             document.getElementById('pos-z').innerText = this.car.position.z.toFixed(1);
+
+            // --- 센서 대시보드 가짜 데이터 시뮬레이션 (AirSim 느낌) ---
+            this.updateSensorDashboard();
         }
 
         // --- Render with Post-processing ---
@@ -407,30 +410,32 @@ class Simulator {
     }
 
     updateRoadView() {
-        // 3D 좌표를 위도/경도로 변환 (간단한 선형 변환 예시)
-        // 전북대 중심 기준 1m = 0.000009도 정도
         const lat = this.origin.lat + (this.car.position.z * -0.000009);
         const lon = this.origin.lon + (this.car.position.x * 0.000011);
         
-        // 차량의 회전각(Heading) 계산 (0~360도)
         let heading = (this.car.rotation.y * 180 / Math.PI) % 360;
         if (heading < 0) heading += 360;
         
-        // 구글 스트리트 뷰 URL 최적화 (cbp 파라미터를 사용하여 거리뷰 우선 모드 강제)
         const iframe = document.getElementById('street-view-iframe');
         
         if (!this.lastUpdatePos || this.car.position.distanceTo(this.lastUpdatePos) > 3.0) {
-            // cbll: 좌표, cbp: 거리뷰 파라미터 최적화
-            // google.com/maps/@{lat},{lon},{zoom}z/data=!3m1!1e3?hl=ko
-            // 임베드용 가장 강력한 거리뷰 호출 방식:
-            const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=YOUR_API_KEY&location=${lat},${lon}&heading=${heading}&pitch=0&fov=90`;
+            // cbll: 좌표, cbp: 12 (카메라 제어), heading, pitch, zoom 등
+            // q 파라미터를 비우고 cbll만 사용하여 스트리트 뷰 강제 호출
+            const streetViewUrl = `https://maps.google.com/maps?layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,10&source=browser&output=embed`;
             
-            // API Key가 없을 때의 대체 임베드 방식 (더 강력한 파라미터 조합)
-            const fallbackUrl = `https://maps.google.com/maps?layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,10&source=browser&output=embed`;
-            
-            iframe.src = fallbackUrl;
+            iframe.src = streetViewUrl;
             this.lastUpdatePos = this.car.position.clone();
         }
+    }
+
+    updateSensorDashboard() {
+        // DEPTH 및 SEMANTIC 뷰에 실시간 움직임 효과 (애니메이션 느낌)
+        const depth = document.querySelector('.view-content.depth');
+        const semantic = document.querySelector('.view-content.semantic');
+        const lidar = document.querySelector('.view-content.lidar-mini');
+        
+        if (depth) depth.style.opacity = 0.5 + Math.random() * 0.5;
+        if (semantic) semantic.style.filter = `hue-rotate(${this.car.position.z * 10}deg)`;
     }
 }
 
