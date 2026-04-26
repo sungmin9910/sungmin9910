@@ -58,8 +58,8 @@ class Simulator {
         this.canvas = document.getElementById('sim-canvas');
         
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x050505);
-        this.scene.fog = new THREE.Fog(0x050505, 10, 50);
+        this.scene.background = new THREE.Color(0x0a0b10); // 심해색 배경
+        this.scene.fog = new THREE.Fog(0x0a0b10, 50, 300); // 안개 거리 대폭 확장
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.set(0, 5, 10);
@@ -158,33 +158,40 @@ class Simulator {
     }
 
     createSatelliteMap() {
-        // Esri World Imagery (Public Tile Server)
-        // Zoom 18 at Jeonbuk Nat'l Univ
-        const tileCount = 3; // 3x3 grid
-        const tileSize = 100; // 100m per tile in 3D
-        
+        const tileSize = 400; // 맵 크기 확장
         const loader = new THREE.TextureLoader();
+        
+        // 1. 위성 지도 로딩 (실패 시를 대비해 여러 서버 시도 또는 세련된 그리드 배경)
+        // 전북대학교 공과대학 부근 (Esri 위성 지도)
+        const satelliteTexture = loader.load(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/17/55593/104975',
+            undefined, 
+            undefined,
+            (err) => {
+                console.error("Texture Load Failed, using fallback grid.");
+            }
+        );
+        
         const groundGeo = new THREE.PlaneGeometry(tileSize, tileSize);
-        
-        // 간단하게 중심 타일 하나와 주변 타일들을 로드 (실제 좌표 계산 로직은 복잡하므로 여기서는 시연용으로 고정 타일 주소 사용 가능)
-        // 전북대학교 근처 타일 예시 (실제로는 위/경도 -> 타일 번호 변환 필요)
-        // 여기서는 시연을 위해 고해상도 위성 이미지 느낌의 텍스처를 로드하는 방식으로 구현
-        const satelliteTexture = loader.load('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/104975/222340');
-        
         const groundMat = new THREE.MeshStandardMaterial({ 
             map: satelliteTexture,
+            color: 0x112233, // 텍스처 로드 전 기본 색상 (어두운 청색)
             roughness: 0.8,
             metalness: 0.1
         });
 
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), groundMat);
+        const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         ground.name = "ground";
         this.scene.add(ground);
 
-        // 추가적인 건물 데코레이션 (실제 맵 느낌을 위해)
-        this.createCampusBuildings();
+        // 2. 바닥에 세련된 오버레이 그리드 추가 (위성 지도가 없어도 멋지게 보이도록)
+        const grid = new THREE.GridHelper(tileSize, 40, 0x00f2ff, 0x111111);
+        grid.position.y = 0.05;
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        this.scene.add(grid);
     }
 
     createCampusBuildings() {
@@ -367,17 +374,14 @@ class Simulator {
         let heading = (this.car.rotation.y * 180 / Math.PI) % 360;
         if (heading < 0) heading += 360;
         
-        // 구글 스트리트 뷰 임베드 URL 업데이트
+        // 구글 스트리트 뷰 URL 최적화 (cbp 파라미터를 사용하여 거리뷰 우선 모드 강제)
         const iframe = document.getElementById('street-view-iframe');
-        const url = `https://www.google.com/maps/embed/v1/streetview?key=YOUR_API_KEY_HERE&location=${lat},${lon}&heading=${heading}&pitch=0&fov=90`;
         
-        // 매번 iframe을 새로고침하면 깜빡거리므로, 일정 거리 이상 이동했을 때만 업데이트 하거나
-        // 여기서는 시연을 위해 URL을 주기적으로 갱신하는 로직으로 구성
-        // (실제 프로젝트에서는 API를 사용하여 부드럽게 전환)
-        if (!this.lastUpdatePos || this.car.position.distanceTo(this.lastUpdatePos) > 2.0) {
-            // Note: API Key가 없으면 '저작권' 메시지가 뜰 수 있지만, 실제 키를 넣으면 로드뷰가 완벽히 연동됩니다.
-            // 여기서는 사용자에게 구조를 보여주기 위해 구현했습니다.
-            iframe.src = `https://maps.google.com/maps?q=${lat},${lon}&layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,0&source=browser&output=embed`;
+        if (!this.lastUpdatePos || this.car.position.distanceTo(this.lastUpdatePos) > 3.0) {
+            // cbll: 좌표, cbp: 12 (카메라 제어), heading, pitch, zoom 등
+            const streetViewUrl = `https://maps.google.com/maps?q=&layer=c&cbll=${lat},${lon}&cbp=12,${heading},0,0,10&ie=UTF8&source=embed&output=embed`;
+            
+            iframe.src = streetViewUrl;
             this.lastUpdatePos = this.car.position.clone();
         }
     }
