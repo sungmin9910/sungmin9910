@@ -24,6 +24,22 @@
     <div id="app">
         <canvas id="sim-canvas"></canvas>
         
+        <!-- AirSim 스타일 센서 대시보드 -->
+        <div class="sensor-dashboard">
+            <div class="sensor-view">
+                <div class="label">DEPTH</div>
+                <div class="view-content depth"></div>
+            </div>
+            <div class="sensor-view">
+                <div class="label">SEMANTIC</div>
+                <div class="view-content semantic"></div>
+            </div>
+            <div class="sensor-view">
+                <div class="label">LiDAR SCAN</div>
+                <div class="view-content lidar-mini"></div>
+            </div>
+        </div>
+
         <div class="ui-overlay">
             <header>
                 <div class="logo">

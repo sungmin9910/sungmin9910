@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 // --- LiDAR 클래스 ---
 class LidarSensor {
@@ -71,6 +75,10 @@ class Simulator {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.shadowMap.enabled = true;
+        this.renderer.toneMapping = THREE.ReinhardToneMapping;
+
+        // --- Post Processing (AirSim Look) ---
+        this.initPostProcessing();
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -285,10 +293,30 @@ class Simulator {
         this.scene.add(this.car);
     }
 
+    initPostProcessing() {
+        this.composer = new EffectComposer(this.renderer);
+        
+        const renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
+
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            0.6, // intensity (빛 번짐 강도)
+            0.5, // radius
+            0.8  // threshold
+        );
+        this.composer.addPass(bloomPass);
+
+        const outputPass = new OutputPass();
+        this.composer.addPass(outputPass);
+    }
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.composer) {
+            this.composer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 
     animate() {
@@ -370,7 +398,12 @@ class Simulator {
             document.getElementById('pos-z').innerText = this.car.position.z.toFixed(1);
         }
 
-        this.renderer.render(this.scene, this.camera);
+        // --- Render with Post-processing ---
+        if (this.composer) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     updateRoadView() {

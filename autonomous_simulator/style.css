@@ -152,6 +152,68 @@ footer {
     color: var(--text-main);
 }
 
+/* AirSim Sensor Dashboard */
+.sensor-dashboard {
+    position: absolute;
+    top: 100px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 5;
+}
+
+.sensor-view {
+    width: 200px;
+    height: 130px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    pointer-events: auto;
+}
+
+.sensor-view .label {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.view-content {
+    flex-grow: 1;
+}
+
+.view-content.depth {
+    background: linear-gradient(180deg, #000 0%, #333 100%);
+    position: relative;
+}
+
+.view-content.depth::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,242,255,0.05) 1px, rgba(0,242,255,0.05) 2px);
+}
+
+.view-content.semantic {
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-content.lidar-mini {
+    background: radial-gradient(circle, rgba(0,242,255,0.15) 0%, #000 80%);
+}
+
 /* Road View Panel */
 .roadview-panel {
     position: absolute;
