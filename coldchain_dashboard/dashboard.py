@@ -7,7 +7,7 @@ from datetime import datetime
 import queue
 
 # ----------------------------------------------------------------
-# 1. 설정 및 초기화
+# 1. 설정 및 공유 자원 초기화
 # ----------------------------------------------------------------
 MQTT_BROKER = "broker.emqx.io"
 MQTT_PORT = 1883
@@ -19,16 +19,22 @@ st.set_page_config(
     layout="wide",
 )
 
-# 데이터 저장을 위한 큐 및 리스트 초기화 (세션 상태 관리)
-if 'data_history' not in st.session_state:
-    st.session_state.data_history = []
-if 'msg_queue' not in st.session_state:
-    st.session_state.msg_queue = queue.Queue()
+# 백그라운드 스레드와 메인 스레드 간 데이터 공유를 위한 큐 (캐시 처리)
+@st.cache_resource
+def get_msg_queue():
+    return queue.Queue()
+
+@st.cache_resource
+def get_data_history():
+    return []
+
+msg_queue = get_msg_queue()
+data_history = get_data_history()
 
 # ----------------------------------------------------------------
 # 2. MQTT 콜백 설정
 # ----------------------------------------------------------------
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     if rc == 0:
         client.subscribe(MQTT_TOPIC)
         print("Connected to MQTT Broker!")
@@ -39,18 +45,27 @@ def on_message(client, userdata, msg):
     try:
         payload = json.loads(msg.payload.decode())
         payload['timestamp'] = datetime.now().strftime("%H:%M:%S")
-        st.session_state.msg_queue.put(payload)
+        # st.session_state 대신 전역 큐(msg_queue)에 저장
+        msg_queue.put(payload)
     except Exception as e:
         print(f"Error parsing message: {e}")
 
-# MQTT 클라이언트 시작 (한 번만 실행)
-if 'mqtt_client' not in st.session_state:
-    client = mqtt.Client()
+@st.cache_resource
+def start_mqtt_client():
+    # 최신 paho-mqtt 2.0 호환성 설정
+    try:
+        from paho.mqtt.client import CallbackAPIVersion
+        client = mqtt.Client(CallbackAPIVersion.VERSION1)
+    except:
+        client = mqtt.Client()
+    
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
     client.loop_start()
-    st.session_state.mqtt_client = client
+    return client
+
+mqtt_client = start_mqtt_client()
 
 # ----------------------------------------------------------------
 # 3. UI 구성
@@ -74,20 +89,22 @@ log_container = st.empty()
 # ----------------------------------------------------------------
 # 4. 실시간 루프 (데이터 업데이트)
 # ----------------------------------------------------------------
+# Streamlit은 스크립트가 끝까지 실행되면 멈추므로 무한 루프를 통해 업데이트 유지
 while True:
-    # 큐에서 새로운 메시지가 있는지 확인
-    new_data = False
-    while not st.session_state.msg_queue.empty():
-        msg = st.session_state.msg_queue.get()
-        st.session_state.data_history.append(msg)
+    new_data_received = False
+    
+    # 큐에서 새로운 메시지 모두 꺼내기
+    while not msg_queue.empty():
+        msg = msg_queue.get()
+        data_history.append(msg)
         
         # 최대 50개 데이터만 유지
-        if len(st.session_state.data_history) > 50:
-            st.session_state.data_history.pop(0)
-        new_data = True
+        if len(data_history) > 50:
+            data_history.pop(0)
+        new_data_received = True
 
-    if new_data and len(st.session_state.data_history) > 0:
-        latest = st.session_state.data_history[-1]
+    if len(data_history) > 0:
+        latest = data_history[-1]
         
         # 상단 메트릭 업데이트
         temp_metric.metric("온도 (DHT11)", f"{latest['temperature']} °C")
@@ -103,16 +120,15 @@ while True:
         else:
             status_metric.success(f"✅ {status}")
 
-        # 차트 데이터 준비
-        df = pd.DataFrame(st.session_state.data_history)
+        # 차트 데이터 준비 및 그리기
+        df = pd.DataFrame(data_history)
         df['temperature'] = df['temperature'].astype(float)
         df['humidity'] = df['humidity'].astype(float)
         df['g_force'] = df['g_force'].astype(float)
         
-        # 차트 그리기
         chart_container.line_chart(df.set_index('timestamp')[['temperature', 'humidity', 'g_force']])
 
-        # 로그 업데이트
+        # 로그 업데이트 (최근 10개)
         log_container.table(df.iloc[::-1][['timestamp', 'temperature', 'humidity', 'g_force', 'status']].head(10))
 
-    time.sleep(0.5)  # 과도한 루프 방지
+    time.sleep(1)  # 1초마다 화면 갱신
