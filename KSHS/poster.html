@@ -282,6 +282,56 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Web Preview Optimization */
+        @media screen {
+            body {
+                background-color: #1e293b;
+                padding: 20px;
+                height: auto;
+            }
+            .poster-container {
+                width: 1000px; /* Scaled down for screen */
+                height: auto;
+                min-height: 2000px;
+                padding: 40px;
+                margin: 0 auto;
+                transform: none;
+            }
+            header {
+                padding-bottom: 30px;
+                margin-bottom: 40px;
+                border-bottom-width: 6px;
+            }
+            .title-main { font-size: 42px; margin-bottom: 10px; }
+            .title-sub { font-size: 24px; margin-bottom: 20px; }
+            .authors { font-size: 18px; }
+            .affiliation { font-size: 16px; }
+            .logo-placeholder { width: 150px; height: 60px; font-size: 14px; border-radius: 10px; }
+            
+            .poster-body {
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+                gap: 30px;
+            }
+            .section-title { font-size: 28px; margin-bottom: 20px; padding-bottom: 10px; border-bottom-width: 4px; gap: 15px; }
+            .section-title i { width: 30px; height: 30px; }
+            p { font-size: 16px; margin-bottom: 15px; }
+            li { font-size: 16px; margin-bottom: 10px; padding-left: 25px; }
+            li::before { font-size: 20px; }
+            .highlight-box { font-size: 16px; padding: 20px; margin: 20px 0; border-left-width: 6px; }
+            .image-container { margin: 20px 0; border-radius: 15px; }
+            .caption { font-size: 14px; margin-top: 10px; }
+            .badge { font-size: 12px; padding: 2px 10px; }
+            footer { padding-top: 30px; }
+            .acknowledgment { font-size: 12px; }
+            .qr-placeholder { width: 80px; height: 80px; font-size: 12px; }
+        }
+
+        /* Print Settings */
+        @media print {
+            body { padding: 0; }
+            .poster-container { box-shadow: none; }
+        }
     </style>
 </head>
 <body>
@@ -330,7 +380,7 @@
                     <h3 class="section-title"><i data-lucide="bar-chart-2"></i> Result and Discussion</h3>
                     <p><strong>1. 시스템 구성 및 아키텍처 (System Architecture)</strong></p>
                     <div class="image-container">
-                        <img src="C:\Users\한성민\.gemini\antigravity\brain\d983ca08-e068-4c4f-8408-66e0ab0ac800\digital_twin_supply_chain_1777087077380.png" alt="Digital Twin Supply Chain">
+                        <img src="digital_twin_v1.png" alt="Digital Twin Supply Chain">
                         <p class="caption">Figure 1. 통합 디지털 트윈 공급망의 개념적 프레임워크.</p>
                     </div>
                     <p><strong>2. 기술 스택 및 동기화 엔진 (Technical Stack)</strong></p>
@@ -346,7 +396,7 @@
                 <section>
                     <p><strong>3. 하이브리드 온/오프라인 데이터 관리</strong></p>
                     <div class="image-container">
-                        <img src="C:\Users\한성민\.gemini\antigravity\brain\d983ca08-e068-4c4f-8408-66e0ab0ac800\dynamic_qr_scanning_1777087089430.png" alt="Dynamic QR Scanning">
+                        <img src="dynamic_qr_v1.png" alt="Dynamic QR Scanning">
                         <p class="caption">Figure 2. 다이나믹 QR 인터페이스 및 실시간 데이터 미러링.</p>
                     </div>
                     <ul>
