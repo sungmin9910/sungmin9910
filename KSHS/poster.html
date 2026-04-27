@@ -283,49 +283,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Web Preview Optimization */
-        @media screen {
-            body {
-                background-color: #1e293b;
-                padding: 20px;
-                height: auto;
-            }
-            .poster-container {
-                width: 1000px; /* Scaled down for screen */
-                height: auto;
-                min-height: 2000px;
-                padding: 40px;
-                margin: 0 auto;
-                transform: none;
-            }
-            header {
-                padding-bottom: 30px;
-                margin-bottom: 40px;
-                border-bottom-width: 6px;
-            }
-            .title-main { font-size: 42px; margin-bottom: 10px; }
-            .title-sub { font-size: 24px; margin-bottom: 20px; }
-            .authors { font-size: 18px; }
-            .affiliation { font-size: 16px; }
-            .logo-placeholder { width: 150px; height: 60px; font-size: 14px; border-radius: 10px; }
-            
-            .poster-body {
-                grid-template-columns: 1fr; /* Stack columns on small screens */
-                gap: 30px;
-            }
-            .section-title { font-size: 28px; margin-bottom: 20px; padding-bottom: 10px; border-bottom-width: 4px; gap: 15px; }
-            .section-title i { width: 30px; height: 30px; }
-            p { font-size: 16px; margin-bottom: 15px; }
-            li { font-size: 16px; margin-bottom: 10px; padding-left: 25px; }
-            li::before { font-size: 20px; }
-            .highlight-box { font-size: 16px; padding: 20px; margin: 20px 0; border-left-width: 6px; }
-            .image-container { margin: 20px 0; border-radius: 15px; }
-            .caption { font-size: 14px; margin-top: 10px; }
-            .badge { font-size: 12px; padding: 2px 10px; }
-            footer { padding-top: 30px; }
-            .acknowledgment { font-size: 12px; }
-            .qr-placeholder { width: 80px; height: 80px; font-size: 12px; }
-        }
+
 
         /* Print Settings */
         @media print {
