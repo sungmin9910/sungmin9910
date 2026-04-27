@@ -80,11 +80,8 @@ humi_metric = col2.empty()
 gforce_metric = col3.empty()
 status_metric = col4.empty()
 
-st.subheader("🌡️ 온도 변화 (°C)")
-temp_chart = st.empty()
-
-st.subheader("💧 습도 변화 (%)")
-humi_chart = st.empty()
+st.subheader("🌡️ 환경 데이터 변화 (온도 & 습도)")
+env_chart = st.empty()
 
 st.subheader("💥 충격량 변화 (G)")
 gforce_chart = st.empty()
@@ -127,8 +124,9 @@ while True:
         df = df.set_index('timestamp')
         
         # 개별 그래프 업데이트
-        temp_chart.line_chart(df['temperature'], color="#FF4B4B")
-        humi_chart.line_chart(df['humidity'], color="#0072B2")
+        # 온도와 습도를 하나의 그래프에 표시
+        env_chart.line_chart(df[['temperature', 'humidity']])
+        # 충격량은 개별 표시
         gforce_chart.line_chart(df['g_force'], color="#F0A30A")
 
         # 로그 업데이트
