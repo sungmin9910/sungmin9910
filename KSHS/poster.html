@@ -10,14 +10,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --primary: #0f172a;
-            --accent: #0ea5e9;
-            --accent-light: #e0f2fe;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
+            --primary: #000080;
+            --accent: #000080;
+            --accent-light: #f0f4ff;
+            --text-main: #000000;
+            --text-muted: #4b5563;
             --white: #ffffff;
-            --bg-page: #f8fafc;
-            --card-shadow: 0 10px 20px -5px rgb(0 0 0 / 0.1), 0 5px 10px -5px rgb(0 0 0 / 0.1);
+            --bg-page: #ffffff;
+            --card-shadow: none;
         }
 
         * {
@@ -41,89 +41,94 @@
             width: 100cm;
             height: 200cm;
             background: var(--white);
-            box-shadow: 0 50px 100px -24px rgb(0 0 0 / 0.25);
+            border: 25px solid var(--primary);
             display: flex;
             flex-direction: column;
-            padding: 100px;
+            padding: 80px 100px;
             position: relative;
             overflow: hidden;
-            /* Scale for screen viewing - optional, but helps browsers handle huge sizes */
-            /* transform-origin: top center; */
         }
 
+        /* Remove decorative background circle from old template */
         .poster-container::before {
-            content: '';
-            position: absolute;
-            top: -300px;
-            right: -300px;
-            width: 1200px;
-            height: 1200px;
-            background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: 0;
+            display: none;
         }
 
         header {
             position: relative;
             z-index: 1;
-            border-bottom: 12px solid var(--accent);
-            padding-bottom: 80px;
-            margin-bottom: 100px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+            border-bottom: 8px solid var(--primary);
+            padding-bottom: 60px;
+            margin-bottom: 80px;
+            display: grid;
+            grid-template-columns: 400px 1fr 400px;
+            align-items: center;
+        }
+
+        .poster-id {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--white);
+            border: 4px solid var(--primary);
+            padding: 10px 30px;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
         }
 
         .header-content {
-            flex: 1;
+            text-align: center;
         }
 
         .title-main {
-            font-size: 130px;
+            font-size: 110px;
             font-weight: 900;
             color: var(--primary);
-            margin-bottom: 30px;
-            letter-spacing: -0.025em;
-            line-height: 1.1;
+            margin-bottom: 25px;
+            letter-spacing: -0.01em;
+            line-height: 1.2;
         }
 
         .title-sub {
-            font-size: 70px;
+            font-size: 60px;
             font-weight: 600;
-            color: var(--accent);
-            margin-bottom: 50px;
+            color: var(--primary);
+            margin-bottom: 40px;
         }
 
         .authors {
-            font-size: 55px;
+            font-size: 50px;
             color: var(--text-main);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .authors span {
-            color: var(--accent);
-            font-weight: 700;
+            color: var(--primary);
+            text-decoration: underline;
         }
 
         .affiliation {
-            font-size: 45px;
+            font-size: 40px;
             color: var(--text-muted);
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
-        .logo-placeholder {
-            width: 400px;
-            height: 180px;
-            background: #f1f5f9;
+        .logo-box {
+            width: 350px;
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 20px;
             font-size: 40px;
-            font-weight: 700;
-            color: #cbd5e1;
-            border: 5px dashed #e2e8f0;
+            font-weight: 800;
+            color: var(--primary);
+            border: 4px solid var(--primary);
+            border-radius: 10px;
         }
+
+        .logo-left { justify-self: start; }
+        .logo-right { justify-self: end; }
 
         .poster-body {
             display: grid;
@@ -151,18 +156,19 @@
             display: flex;
             align-items: center;
             gap: 25px;
-            font-size: 70px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 8px solid var(--accent-light);
+            font-size: 65px;
+            font-weight: 900;
+            color: var(--white);
+            background: var(--primary);
+            padding: 20px 40px;
+            margin-bottom: 40px;
+            border-radius: 10px;
         }
 
         .section-title i {
-            color: var(--accent);
-            width: 80px;
-            height: 80px;
+            color: var(--white);
+            width: 70px;
+            height: 70px;
         }
 
         p {
@@ -306,13 +312,15 @@
 <body>
     <div class="poster-container">
         <header>
+            <div class="poster-id">P-1-024</div>
+            <div class="logo-box logo-left">JBNU LOGO</div>
             <div class="header-content">
                 <h1 class="title-main">농산물 신선 물류 공급망 모니터링을 위한 다이나믹 QR 코드 및 디지털 트윈 기술 통합 연구</h1>
                 <h2 class="title-sub">Integration of Dynamic QR Code and Digital Twin Technology for Agricultural Fresh Product Supply Chain Monitoring</h2>
                 <p class="authors">한성민, 이효은, 이동수, <span>김성민*</span></p>
                 <p class="affiliation">전북대학교 스마트농생명시스템학과 (Jeonbuk National University)</p>
             </div>
-            <div class="logo-placeholder">JBNU LOGO</div>
+            <div class="logo-box logo-right">KSHS LOGO</div>
         </header>
 
         <div class="poster-body">
