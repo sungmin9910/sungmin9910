@@ -80,8 +80,14 @@ humi_metric = col2.empty()
 gforce_metric = col3.empty()
 status_metric = col4.empty()
 
-st.subheader("📈 센서 데이터 추이")
-chart_container = st.empty()
+st.subheader("🌡️ 온도 변화 (°C)")
+temp_chart = st.empty()
+
+st.subheader("💧 습도 변화 (%)")
+humi_chart = st.empty()
+
+st.subheader("💥 충격량 변화 (G)")
+gforce_chart = st.empty()
 
 st.subheader("📋 최근 수신 로그")
 log_container = st.empty()
@@ -89,29 +95,22 @@ log_container = st.empty()
 # ----------------------------------------------------------------
 # 4. 실시간 루프 (데이터 업데이트)
 # ----------------------------------------------------------------
-# Streamlit은 스크립트가 끝까지 실행되면 멈추므로 무한 루프를 통해 업데이트 유지
 while True:
-    new_data_received = False
-    
-    # 큐에서 새로운 메시지 모두 꺼내기
     while not msg_queue.empty():
         msg = msg_queue.get()
         data_history.append(msg)
-        
-        # 최대 50개 데이터만 유지
         if len(data_history) > 50:
             data_history.pop(0)
-        new_data_received = True
 
     if len(data_history) > 0:
         latest = data_history[-1]
         
         # 상단 메트릭 업데이트
-        temp_metric.metric("온도 (DHT11)", f"{latest['temperature']} °C")
-        humi_metric.metric("습도 (DHT11)", f"{latest['humidity']} %")
-        gforce_metric.metric("충격량 (G-Force)", f"{latest['g_force']} G")
+        temp_metric.metric("현재 온도", f"{latest['temperature']} °C")
+        humi_metric.metric("현재 습도", f"{latest['humidity']} %")
+        gforce_metric.metric("현재 충격량", f"{latest['g_force']} G")
         
-        # 상태에 따른 강조 표시
+        # 상태 표시
         status = latest['status']
         if "충돌" in status:
             status_metric.error(f"⚠️ {status}")
@@ -120,15 +119,19 @@ while True:
         else:
             status_metric.success(f"✅ {status}")
 
-        # 차트 데이터 준비 및 그리기
+        # 데이터프레임 변환
         df = pd.DataFrame(data_history)
         df['temperature'] = df['temperature'].astype(float)
         df['humidity'] = df['humidity'].astype(float)
         df['g_force'] = df['g_force'].astype(float)
+        df = df.set_index('timestamp')
         
-        chart_container.line_chart(df.set_index('timestamp')[['temperature', 'humidity', 'g_force']])
+        # 개별 그래프 업데이트
+        temp_chart.line_chart(df['temperature'], color="#FF4B4B")
+        humi_chart.line_chart(df['humidity'], color="#0072B2")
+        gforce_chart.line_chart(df['g_force'], color="#F0A30A")
 
-        # 로그 업데이트 (최근 10개)
-        log_container.table(df.iloc[::-1][['timestamp', 'temperature', 'humidity', 'g_force', 'status']].head(10))
+        # 로그 업데이트
+        log_container.table(df.iloc[::-1][['temperature', 'humidity', 'g_force', 'status']].head(10))
 
-    time.sleep(1)  # 1초마다 화면 갱신
+    time.sleep(1)
