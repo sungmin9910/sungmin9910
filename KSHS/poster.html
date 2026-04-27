@@ -142,14 +142,17 @@
         .column {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 40px;
         }
 
         section {
             background: var(--white);
             border-radius: 40px;
-            margin-bottom: 60px;
-            padding: 20px 0; /* Add internal padding to fill more space */
+            margin-bottom: 40px;
+            padding: 20px 0;
+            break-inside: avoid; /* 내용 잘림 방지 */
+            page-break-inside: avoid;
         }
 
         .section-title {
@@ -214,6 +217,7 @@
             font-weight: 700;
             color: var(--primary);
             word-break: keep-all;
+            break-inside: avoid;
         }
 
         .image-container {
@@ -297,7 +301,7 @@
             margin: 0;
         }
         @media print {
-            body { padding: 0; margin: 0; background: white; }
+            body { padding: 0; margin: 0; background: white; -webkit-print-color-adjust: exact; }
             .poster-container { 
                 box-shadow: none; 
                 width: 100cm; 
@@ -305,6 +309,8 @@
                 margin: 0;
                 padding: 100px;
                 transform: none !important;
+                page-break-after: avoid;
+                page-break-before: avoid;
             }
         }
     </style>
