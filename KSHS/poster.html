@@ -38,13 +38,13 @@
 
         /* Poster Container - 100cm x 200cm */
         .poster-container {
-            width: 100cm;
-            height: 200cm;
+            width: 90cm;
+            height: 110cm;
             background: var(--white);
             border: 25px solid var(--primary);
             display: flex;
             flex-direction: column;
-            padding: 80px 100px;
+            padding: 60px 80px;
             position: relative;
             overflow: hidden;
         }
@@ -297,17 +297,17 @@
 
         /* Print Settings */
         @page {
-            size: 100cm 200cm;
+            size: 90cm 110cm;
             margin: 0;
         }
         @media print {
             body { padding: 0; margin: 0; background: white; -webkit-print-color-adjust: exact; }
             .poster-container { 
                 box-shadow: none; 
-                width: 100cm; 
-                height: 200cm; 
+                width: 90cm; 
+                height: 110cm; 
                 margin: 0;
-                padding: 100px;
+                padding: 60px 80px;
                 transform: none !important;
                 page-break-after: avoid;
                 page-break-before: avoid;
