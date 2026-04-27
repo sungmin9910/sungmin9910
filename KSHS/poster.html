@@ -286,9 +286,20 @@
 
 
         /* Print Settings */
+        @page {
+            size: 100cm 200cm;
+            margin: 0;
+        }
         @media print {
-            body { padding: 0; }
-            .poster-container { box-shadow: none; }
+            body { padding: 0; margin: 0; background: white; }
+            .poster-container { 
+                box-shadow: none; 
+                width: 100cm; 
+                height: 200cm; 
+                margin: 0;
+                padding: 100px;
+                transform: none !important;
+            }
         }
     </style>
 </head>
