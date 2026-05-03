@@ -19,22 +19,27 @@ st.set_page_config(
     layout="wide",
 )
 
-# 커스텀 CSS로 디자인 강화
+# 다크 모드와 라이트 모드 모두 어울리는 세련된 디자인 적용
 st.markdown("""
     <style>
-    .main {
-        background-color: #f5f7f9;
+    [data-testid="stMetricValue"] {
+        font-size: 28px;
+        color: #00d4ff;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 16px;
+        font-weight: bold;
     }
     .stMetric {
-        background-color: #ffffff;
+        background-color: rgba(255, 255, 255, 0.05);
         padding: 15px;
         border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     </style>
-    """, unsafe_allow_stdio=True)
+    """, unsafe_allow_html=True)
 
-# 백그라운드 스레드와 메인 스레드 간 데이터 공유를 위한 큐
+# 데이터 공유를 위한 큐
 @st.cache_resource
 def get_msg_queue():
     return queue.Queue()
@@ -61,7 +66,7 @@ def on_message(client, userdata, msg):
         payload = json.loads(msg.payload.decode())
         payload['timestamp'] = datetime.now().strftime("%H:%M:%S")
         # 데이터가 문자열로 올 경우를 대비해 숫자로 변환
-        for key in ['temperature', 'humidity', 'lux', 'g_force', 'speed', 'lat', 'lng', 'yaw', 'pitch', 'roll']:
+        for key in ['temperature', 'humidity', 'lux', 'g_force', 'speed', 'lat', 'lng']:
             if key in payload:
                 try:
                     payload[key] = float(payload[key])
@@ -90,10 +95,10 @@ mqtt_client = start_mqtt_client()
 # ----------------------------------------------------------------
 # 3. UI 구성
 # ----------------------------------------------------------------
-st.title("🚚 프리미엄 콜드체인 실시간 통합 관제")
-st.markdown(f"**상태:** 데이터 수신 대기 중... (Topic: `{MQTT_TOPIC}`)")
+st.title("🚚 프리미엄 콜드체인 통합 관제")
+st.markdown(f"**실시간 수신 중...** (Topic: `{MQTT_TOPIC}`)")
 
-# 레이아웃 설정
+# 상단 5대 지표 레이아웃
 m1, m2, m3, m4, m5 = st.columns(5)
 temp_metric = m1.empty()
 humi_metric = m2.empty()
@@ -103,68 +108,67 @@ speed_metric = m5.empty()
 
 st.markdown("---")
 
-col_left, col_right = st.columns([1, 1])
+col_left, col_right = st.columns([1.2, 1])
 
 with col_left:
-    st.subheader("📍 차량 현재 위치 (GPS)")
+    st.subheader("📍 차량 위치 및 이동 경로")
     map_container = st.empty()
     
-    st.subheader("💥 충격량 및 속도 변화")
+    st.subheader("📉 충격량(G) 및 속도(km/h) 추이")
     gforce_chart = st.empty()
 
 with col_right:
-    st.subheader("🌡️ 환경 데이터 모니터링 (온도/습도/조도)")
+    st.subheader("💡 실시간 조도 변화 (Lux)")
+    lux_chart = st.empty()
+
+    st.subheader("🌡️ 온도/습도 변화")
     env_chart = st.empty()
     
-    st.subheader("📋 최근 시스템 로그")
+    st.subheader("📋 실시간 로그")
     log_container = st.empty()
 
 # ----------------------------------------------------------------
-# 4. 실시간 루프 (데이터 업데이트)
+# 4. 실시간 루프
 # ----------------------------------------------------------------
 while True:
-    new_data_received = False
     while not msg_queue.empty():
         msg = msg_queue.get()
         data_history.append(msg)
-        new_data_received = True
         if len(data_history) > 100:
             data_history.pop(0)
 
     if len(data_history) > 0:
         latest = data_history[-1]
-        device_type = latest.get('device', 'unknown').upper()
         
-        # 상단 메트릭 업데이트
+        # 메트릭 업데이트 (값이 없을 경우를 대비해 0.0 처리)
         temp_metric.metric("온도", f"{latest.get('temperature', 0):.1f} °C")
         humi_metric.metric("습도", f"{latest.get('humidity', 0):.1f} %")
         lux_metric.metric("조도", f"{latest.get('lux', 0):.0f} lx")
         gforce_metric.metric("충격량", f"{latest.get('g_force', 0):.2f} G")
-        speed_metric.metric("속도", f"{latest.get('speed', 0):.1f} km/h")
+        speed_metric.metric("현재 속도", f"{latest.get('speed', 0):.1f} km/h")
         
         # 지도 업데이트
-        lat = latest.get('lat', 0)
-        lng = latest.get('lng', 0)
+        lat, lng = latest.get('lat', 0), latest.get('lng', 0)
         if lat != 0 and lng != 0:
             map_data = pd.DataFrame({'lat': [lat], 'lon': [lng]})
             map_container.map(map_data, zoom=15)
         else:
-            map_container.info("GPS 신호를 기다리는 중입니다...")
+            map_container.info("GPS 수신 대기 중...")
 
         # 데이터프레임 변환
-        df = pd.DataFrame(data_history)
-        df = df.set_index('timestamp')
+        df = pd.DataFrame(data_history).set_index('timestamp')
         
-        # 환경 그래프 (온도, 습도, 조도는 스케일이 다르므로 나누거나 조절 필요)
-        # 여기서는 온도/습도만 표시하고 조도는 별도로 보거나 스케일링
-        env_chart.line_chart(df[['temperature', 'humidity']])
+        # 그래프들
+        if 'temperature' in df.columns and 'humidity' in df.columns:
+            env_chart.line_chart(df[['temperature', 'humidity']])
         
-        # 충격량 그래프
-        gforce_chart.line_chart(df[['g_force', 'speed']])
+        if 'lux' in df.columns:
+            lux_chart.area_chart(df['lux'], color="#FFD700") # 금색 영역 차트
+            
+        if 'g_force' in df.columns:
+            gforce_chart.line_chart(df[['g_force', 'speed']])
 
-        # 로그 업데이트
-        display_cols = ['device', 'temperature', 'humidity', 'lux', 'g_force', 'status']
-        available_cols = [c for c in display_cols if c in df.columns]
-        log_container.dataframe(df.iloc[::-1][available_cols].head(10), use_container_width=True)
+        # 로그
+        log_container.dataframe(df.iloc[::-1].head(10), use_container_width=True)
 
     time.sleep(1)
