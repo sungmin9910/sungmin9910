@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KSHS 포스터 - 다이나믹 QR & 디지털 트윈</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -127,8 +130,13 @@
             border-radius: 10px;
         }
 
-        .logo-left { justify-self: start; }
-        .logo-right { justify-self: end; }
+        .logo-left {
+            justify-self: start;
+        }
+
+        .logo-right {
+            justify-self: end;
+        }
 
         .poster-body {
             display: grid;
@@ -142,16 +150,18 @@
         .column {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            gap: 25px;
+            justify-content: space-between; /* Spreads sections to fill height */
+            gap: 20px;
+            height: 100%;
         }
 
         section {
             background: var(--white);
             border-radius: 40px;
-            margin-bottom: 40px;
-            padding: 20px 0;
-            break-inside: avoid; /* 내용 잘림 방지 */
+            margin-bottom: 25px; /* Reduced margin */
+            padding: 15px 0; /* Reduced padding */
+            break-inside: avoid;
+            /* 내용 잘림 방지 */
             page-break-inside: avoid;
         }
 
@@ -159,12 +169,12 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            font-size: 48px;
+            font-size: 44px; /* Slightly reduced */
             font-weight: 900;
             color: var(--white);
             background: var(--primary);
-            padding: 15px 30px;
-            margin-bottom: 25px;
+            padding: 12px 25px; /* Reduced padding */
+            margin-bottom: 20px; /* Reduced margin */
             border-radius: 10px;
         }
 
@@ -172,6 +182,52 @@
             color: var(--white);
             width: 50px;
             height: 50px;
+        }
+
+        .sub-section-title {
+            font-size: 36px; /* Slightly reduced */
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0 15px 0; /* Reduced margin */
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .sub-section-title i {
+            width: 40px;
+            height: 40px;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .process-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .process-item img {
+            display: none;
+        }
+
+        .process-item .photo-placeholder {
+            height: 250px;
+            font-size: 20px;
+        }
+
+        .process-item .process-label {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
         }
 
         p {
@@ -225,13 +281,26 @@
             border-radius: 30px;
             overflow: hidden;
             background: #f8fafc;
-            margin: 40px 0;
+            margin: 20px 0;
             box-shadow: var(--card-shadow);
         }
 
-        .image-container img {
+        .photo-placeholder {
             width: 100%;
-            display: block;
+            height: 400px;
+            background: #f1f5f9;
+            border: 4px dashed #cbd5e1;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .photo-placeholder::after {
+            content: 'Insert Research Photo Here';
         }
 
         .caption {
@@ -289,8 +358,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
 
@@ -300,12 +376,19 @@
             size: 90cm 110cm;
             margin: 0;
         }
+
         @media print {
-            body { padding: 0; margin: 0; background: white; -webkit-print-color-adjust: exact; }
-            .poster-container { 
-                box-shadow: none; 
-                width: 90cm; 
-                height: 110cm; 
+            body {
+                padding: 0;
+                margin: 0;
+                background: white;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .poster-container {
+                box-shadow: none;
+                width: 90cm;
+                height: 110cm;
                 margin: 0;
                 padding: 60px 80px;
                 transform: none !important;
@@ -315,6 +398,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="poster-container">
         <header>
@@ -322,7 +406,8 @@
             <div class="logo-box logo-left">JBNU LOGO</div>
             <div class="header-content">
                 <h1 class="title-main">농산물 신선 물류 공급망 모니터링을 위한 다이나믹 QR 코드 및 디지털 트윈 기술 통합 연구</h1>
-                <h2 class="title-sub">Integration of Dynamic QR Code and Digital Twin Technology for Agricultural Fresh Product Supply Chain Monitoring</h2>
+                <h2 class="title-sub">Integration of Dynamic QR Code and Digital Twin Technology for Agricultural Fresh
+                    Product Supply Chain Monitoring</h2>
                 <p class="authors">한성민, 이효은, 이동수, <span>김성민*</span></p>
                 <p class="affiliation">전북대학교 스마트농생명시스템학과 (Jeonbuk National University)</p>
             </div>
@@ -335,24 +420,42 @@
                 <section>
                     <h3 class="section-title"><i data-lucide="file-text"></i> Abstract</h3>
                     <p>
-                        The fresh agricultural product supply chain involves complex and multi-stage processes from production to consumption. However, fragmented information sharing has long hindered effective quality control and the stable management of supply and demand. To address these challenges, this study proposes an advanced platform for intelligent end-to-end logistics management by integrating dynamic QR code-based data collection with digital twin technology, which mirrors real-time field data in a virtual environment. The proposed system connects data collected via dynamic QR codes across farms, agricultural product processing complexes (APCs), and transportation stages with a digital twin platform. By digitizing on-site conditions in real time, the system enables managers to intuitively monitor and control the entire distribution process. It also ensures data continuity by integrating diverse information streams into a unified framework, allowing remote inspection through virtual models that accurately replicate real-world conditions. Furthermore, the synchronization of multi-dimensional data establishes a robust management system capable of monitoring the distribution environment regardless of location. The results demonstrate that real-time synchronization between field data and the digital twin platform supports proactive decision-making and dynamic route optimization in response to unexpected events. Additionally, the system enhances consumer trust by providing transparent and up-to-date information on fresh produce distribution beyond simple historical records.
+                        The fresh agricultural product supply chain involves complex and multi-stage processes from
+                        production to consumption. However, fragmented information sharing has long hindered effective
+                        quality control and the stable management of supply and demand. To address these challenges,
+                        this study proposes an advanced platform for intelligent end-to-end logistics management by
+                        integrating dynamic QR code-based data collection with digital twin technology, which mirrors
+                        real-time field data in a virtual environment. The proposed system connects data collected via
+                        dynamic QR codes across farms, agricultural product processing complexes (APCs), and
+                        transportation stages with a digital twin platform. By digitizing on-site conditions in real
+                        time, the system enables managers to intuitively monitor and control the entire distribution
+                        process. It also ensures data continuity by integrating diverse information streams into a
+                        unified framework, allowing remote inspection through virtual models that accurately replicate
+                        real-world conditions. Furthermore, the synchronization of multi-dimensional data establishes a
+                        robust management system capable of monitoring the distribution environment regardless of
+                        location. The results demonstrate that real-time synchronization between field data and the
+                        digital twin platform supports proactive decision-making and dynamic route optimization in
+                        response to unexpected events. Additionally, the system enhances consumer trust by providing
+                        transparent and up-to-date information on fresh produce distribution beyond simple historical
+                        records.
                     </p>
                 </section>
 
                 <section>
                     <h3 class="section-title"><i data-lucide="info"></i> Introduction</h3>
-                    <p>현재 신선 농산물 공급망은 데이터 단절과 실시간 모니터링 능력 부족으로 인해 큰 어려움을 겪고 있습니다. 기존의 정적(Static) QR 코드는 고정된 정보만을 제공하므로 유통 및 저장 과정에서 발생하는 동적인 상태 변화를 반영하지 못합니다.</p>
-                    <div class="highlight-box">
-                        본 연구는 다이나믹 QR 코드와 디지털 트윈 기술을 결합하여 물리적-디지털 간격(gap)을 해소하는 통합 플랫폼을 제안합니다.
+                    <div class="image-container">
+                        <div class="photo-placeholder" style="height: 450px;"></div>
+                        <p class="caption">Figure 1. 다이나믹 QR 및 디지털 트윈 통합 플랫폼의 개념적 비전.</p>
                     </div>
+                    <p>기존 공급망의 정보 단절 문제를 해결하기 위해, <strong>다이나믹 QR</strong>과 <strong>디지털 트윈</strong>을 결합하여 물리적 현장과 디지털 데이터를 실시간으로 동기화하는 지능형 통합 플랫폼을 제안합니다.</p>
                 </section>
 
                 <section>
                     <h3 class="section-title"><i data-lucide="target"></i> Object</h3>
                     <ul>
-                        <li>물리적 코드 교체 없이 실시간 데이터를 업데이트할 수 있는 <strong>다이나믹 QR 코드</strong> 시스템 구축</li>
-                        <li>생산지에서 소비지까지(Farm → APC → Logistics → Market)의 전 과정을 미러링하는 <strong>디지털 트윈 플랫폼</strong> 개발</li>
-                        <li>실시간 품질 저하 모델링 및 유통 경로 최적화를 통한 의사결정 고도화</li>
+                        <li>다이나믹 QR 코드를 활용하여 농가에서 소비자까지 이어지는 <strong>물류 전 주기 데이터 연결성(Traceability)</strong> 확보</li>
+                        <li>운송 및 APC 저장 단계의 온습도·충격 데이터를 실시간으로 동기화하는 <strong>디지털 트윈 기반 관제 시스템</strong> 구축</li>
+                        <li>다차원 물리 데이터를 수집하고 이상 상태를 즉각 분류하는 <strong>지능형 이벤트 감지 모듈</strong> 구현 및 검증</li>
                     </ul>
                 </section>
             </div>
@@ -361,36 +464,104 @@
             <div class="column">
                 <section>
                     <h3 class="section-title"><i data-lucide="bar-chart-2"></i> Result and Discussion</h3>
-                    <p><strong>1. 시스템 구성 및 아키텍처 (System Architecture)</strong></p>
-                    <div class="image-container">
-                        <img src="digital_twin_v1.png" alt="Digital Twin Supply Chain">
-                        <p class="caption">Figure 1. 통합 디지털 트윈 공급망의 개념적 프레임워크.</p>
+                    
+                    <h4 class="sub-section-title"><i data-lucide="route"></i> 1. Integrated Process Workflow</h4>
+                    <p>본 시스템은 농산물 생산부터 소비에 이르는 전 과정의 데이터 파절(Fragmentation) 현상을 해결하기 위해 설계되었습니다. 생산 단계에서 생성된 고유 식별 데이터는 다이나믹 QR 코드를 매개체로 하여 유통 전 주기에 걸쳐 연속성을 유지하며 관리됩니다.</p>
+                    
+                    <div class="process-grid">
+                        <div class="process-item">
+                            <div class="photo-placeholder" style="height: 380px;"></div>
+                            <div class="process-label">Farm Stage</div>
+                        </div>
+                        <div class="process-item">
+                            <div class="photo-placeholder" style="height: 380px;"></div>
+                            <div class="process-label">APC & Storage</div>
+                        </div>
+                        <div class="process-item">
+                            <div class="photo-placeholder" style="height: 380px;"></div>
+                            <div class="process-label">Consumer Stage</div>
+                        </div>
                     </div>
-                    <p><strong>2. 기술 스택 및 동기화 엔진 (Technical Stack)</strong></p>
+                    <p class="caption">Figure 2. 농가-APC-소비자 연계형 통합 물류 프로세스 단계별 시각화.</p>
+
                     <ul>
-                        <li><span class="badge">통신</span> <strong>MQTT 프로토콜:</strong> 실시간 양방향 데이터 동기화 구현.</li>
-                        <li><span class="badge">저장</span> <strong>Littlefs 파일 시스템:</strong> 임베디드 장치의 데이터 무결성 보장.</li>
+                        <li><span class="badge">Farm</span> <strong>정보의 생성 및 할당:</strong> 생산 단계의 기초 정보(생산자, 품목, 재배 환경 등)를 다이나믹 QR에 최초 할당하여 디지털 이력의 기점을 마련함.</li>
+                        <li><span class="badge">APC Storage</span> <strong>디지털 트윈 정밀 관리:</strong> 지능형 모니터링 디바이스를 통해 APC 저장고의 온습도 및 조도(Lux) 환경을 실시간 모니터링하며 가상 모델에 동기화하여 최적의 저장 상태를 유지함.</li>
+                        <li><span class="badge">Consumer</span> <strong>실시간 품질 정보 공유:</strong> 소비자는 QR 스캔을 통해 APC 및 유통 과정에서 수집된 실시간 환경 데이터를 직접 확인함으로써 제품의 신선도와 신뢰성을 검증함.</li>
                     </ul>
+
+                    <h4 class="sub-section-title" style="margin-top: 90px;"><i data-lucide="cpu"></i> 2. Multi-Dimensional Sensing & Event Detection</h4>
+                    <p>유통 현장의 물리적 상태를 실시간으로 추적하기 위해, 다양한 센서를 통합한 지능형 데이터 수집 및 이벤트 감지 모듈을 구현하였습니다.</p>
+                    
+                    <p style="font-weight: 800; color: var(--primary); font-size: 24px; margin: 50px 0 15px 0;">
+                        ▶ 5대 핵심 모니터링 지표 수집
+                    </p>
+                    <ul style="margin-bottom: 40px;">
+                        <li><strong>환경 인자:</strong> 온도(Temperature), 습도(Humidity)</li>
+                        <li><strong>물리 인자:</strong> 개방 감지용 조도(Lux), 누적 충격량(G-force)</li>
+                        <li><strong>공간 인자:</strong> 실시간 위치(Lat/Lng), 이동 속도(Speed)</li>
+                    </ul>
+
+                    <p style="font-weight: 800; color: #ea580c; font-size: 24px; margin: 0 0 15px 0;">
+                        ▶ 지능형 상태 판별 (Event Classification)
+                    </p>
+                    <p style="margin-bottom: 25px;">엣지 디바이스 내에서 가속도 데이터를 분석하여 유통 중 발생할 수 있는 이상 상태를 즉각적으로 분류합니다.</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center; margin-bottom: 40px;">
+                        <div style="background: #fee2e2; padding: 25px 15px; border-radius: 8px; border: 1px solid #ef4444;">
+                            <div style="font-weight: 800; color: #b91c1c;">G-force > 2.0</div>
+                            <div style="font-size: 20px;">강한 충돌 (위험)</div>
+                        </div>
+                        <div style="background: #fef08a; padding: 25px 15px; border-radius: 8px; border: 1px solid #eab308;">
+                            <div style="font-weight: 800; color: #a16207;">G-force > 1.3</div>
+                            <div style="font-size: 20px;">이동 및 진동</div>
+                        </div>
+                        <div style="background: #dcfce7; padding: 25px 15px; border-radius: 8px; border: 1px solid #22c55e;">
+                            <div style="font-weight: 800; color: #15803d;">Otherwise</div>
+                            <div style="font-size: 20px;">안전 상태</div>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box" style="margin-top: 30px; font-size: 26px;">
+                        <i data-lucide="check-circle" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 10px;"></i>
+                        <strong>[Edge Intelligence]</strong> 단순 데이터 전송을 넘어, 엣지 단에서 위험 이벤트를 스스로 감지하고 분류하여 <strong>데이터 통신의 효율성과 관제 응답성을 극대화</strong>합니다.
+                    </div>
                 </section>
             </div>
 
-            <!-- Column 3: Result and Discussion (Part 2) + Conclusion + Acknowledgement -->
+            <!-- Column 3: Result and Discussion (Part 2) -->
             <div class="column">
                 <section>
-                    <p><strong>3. 하이브리드 온/오프라인 데이터 관리</strong></p>
+                    <h4 class="sub-section-title"><i data-lucide="monitor"></i> 3. Integrated APC Monitoring Dashboard</h4>
+                    <p>센싱 모듈에서 수집된 다차원 데이터를 기반으로, APC 관리자가 물류 환경을 종합적으로 통제할 수 있는 디지털 트윈 관제 대시보드를 구축하였습니다.</p>
                     <div class="image-container">
-                        <img src="dynamic_qr_v1.png" alt="Dynamic QR Scanning">
-                        <p class="caption">Figure 2. 다이나믹 QR 인터페이스 및 실시간 데이터 미러링.</p>
+                        <div class="photo-placeholder" style="height: 530px;"></div>
+                        <p class="caption">Figure 3. 실시간 관제 대시보드 (지도 매핑 및 환경 추이 시각화).</p>
                     </div>
                     <ul>
-                        <li><strong>데이터 연속성:</strong> 네트워크 단절 시에도 끊김 없는 데이터 수집 가능.</li>
-                        <li><strong>기대 효과:</strong> 물류 비용 6% 절감 및 소비자 신뢰도 확보.</li>
+                        <li><span class="badge" style="background:#0284c7;">Real-time Metrics</span> 온도, 습도, 조도, 충격량, 속도 등 5대 지표의 실시간 변화량 모니터링.</li>
+                        <li><span class="badge" style="background:#ea580c;">Event Mapping</span> 발생한 물리적 충격(G-force) 및 박스 개방(Lux) 이벤트를 GPS 경로 상에 즉각 매핑하여 문제 발생 위치 추적.</li>
+                        <li><span class="badge" style="background:#16a34a;">Proactive Action</span> 시계열 데이터 기반 추이 그래프(Trend Charts)를 통해 품질 저하를 유발하는 환경적 요인을 선제적으로 관리함.</li>
                     </ul>
+                </section>
+
+                <section>
+                    <h4 class="sub-section-title"><i data-lucide="smartphone"></i> 4. Consumer Information Service (Future Plan)</h4>
+                    <p>APC 관제를 위해 축적된 고해상도 물류 빅데이터는 향후 소비자용 데이터로 요약 가공되어 다이나믹 QR 코드를 통해 제공될 계획입니다.</p>
+                    <div style="background: #fdf2f8; border: 2px solid #ec4899; border-radius: 15px; padding: 25px; margin: 20px 0;">
+                        <div style="font-weight: 800; color: #db2777; font-size: 26px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                            <i data-lucide="check-square"></i> From Complex Data to Trust Summary
+                        </div>
+                        <ul style="margin-bottom: 0;">
+                            <li style="font-size: 22px; margin-bottom: 10px; color: #be185d;">전문가용 시계열 그래프를 소비자 친화적인 '신선도 점수'나 '안전 배송 인증' 형태로 직관적으로 요약(Summarization).</li>
+                            <li style="font-size: 22px; margin-bottom: 0; color: #be185d;">단순 텍스트 중심의 기존 이력제를 탈피하고, 센서 데이터로 증명된 투명한 유통 과정을 공개하여 궁극적인 <strong>브랜드 신뢰도(Trust)</strong>를 구축함.</li>
+                        </ul>
+                    </div>
                 </section>
 
                 <section>
                     <h3 class="section-title"><i data-lucide="check-circle"></i> Conclusion</h3>
-                    <p>본 연구는 다이나믹 QR 코드와 디지털 트윈 기술의 통합이 <strong>예측 불가능한 환경 변화에 선제적으로 대응</strong>하고, 소비자에게 <strong>최상의 신뢰도</strong>를 제공하는 혁신적인 솔루션임을 입증했습니다.</p>
+                    <p>본 연구는 다이나믹 QR 코드와 디지털 트윈 기술의 통합이 <strong>예측 불가능한 환경 변화에 선제적으로 대응</strong>하고, 소비자에게 <strong>최상의
+                            신뢰도</strong>를 제공하는 혁신적인 솔루션임을 입증했습니다.</p>
                 </section>
 
                 <section>
@@ -415,4 +586,5 @@
         lucide.createIcons();
     </script>
 </body>
+
 </html>
