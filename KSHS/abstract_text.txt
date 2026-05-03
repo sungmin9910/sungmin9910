@@ -1,0 +1,20 @@
+P-6-300Integration of Dynamic QR Code and Digital Twin Technology for Agricultural Fresh Product Supply
+Chain Monitoring
+Seong Min Han
+, Hyoeun Lee , Dong Soo Ryu , 11 2 Seong Min Kim2*Department of Agricultural Machinery Engineering, Graduate School, Jeonbuk National University, Jeonju 54896, Korea ,
+Institute for Agricultural Machinery & ICT Convergence, Jeonbuk National University, Jeonju 54896, Korea
+12 The fresh agricultural product supply chain involves complex and multi-stage processes from production to consumption. However,
+fragmented information sharing has long hindered effective quality control and the stable management of supply and demand. To address
+these challenges, this study proposes an advanced platform for intelligent end-to-end logistics management by integrating dynamic QR
+code
+based data collection with digital twin technology, which mirrors real-time field data in a virtual environment. The proposed system connects data collected via dynamic QR codes across farms, agricultural product processing complexes (APCs), and transportation
+stages with a digital twin platform. By digitizing on-site conditions in real time, the system enables managers to intuitively monitor and
+control the entire distribution process. It also ensures data continuity by integrating diverse information streams into a unified framework,
+allowing remote inspection through virtual models that accurately replicate real-world conditions. Furthermore, the synchronization of
+multi-dimensional data establishes a robust management system capable of monitoring the distribution environment regardless of
+location. The results demonstrate that real-time synchronization between field data and the digital twin platform supports proactive
+decision-making and dynamic route optimization in response to unexpected events. Additionally, the system enhances consumer trust by
+providing transparent and up-to-date information on fresh produce distribution beyond simple historical records. (This work was carried
+out with the support of "Project No. PJ017108", Rural Development Administration, Korea, and “Contract-Based Enrollment Quotas
+Program” of Korea Industrial Technology Association(KOITA) funded by Ministry of Science and ICT(MIST))
+–T. 063-270-2617 E-mail. smkim@jbnu.ac.kr

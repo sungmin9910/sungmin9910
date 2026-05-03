@@ -10,8 +10,8 @@
 // -----------------------------------------
 // 1. 와이파이 및 MQTT 설정 (여기를 수정하세요)
 // -----------------------------------------
-const char* ssid = "hani";         // 와이파이 이름 (2.4GHz)
-const char* password = "12345687"; // 와이파이 비밀번호
+const char* ssid = "225";         // 와이파이 이름 (2.4GHz)
+const char* password = "123698745"; // 와이파이 비밀번호
 
 const char* mqtt_server = "broker.emqx.io";  // 모스퀴토 공개 테스트 서버
 const int mqtt_port = 1883;
