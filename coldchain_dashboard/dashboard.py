@@ -14,12 +14,27 @@ MQTT_PORT = 1883
 MQTT_TOPIC = "coldchain/truck01/sensor"
 
 st.set_page_config(
-    page_title="Cold Chain Real-time Monitor",
+    page_title="Cold Chain Premium Monitor",
     page_icon="🚚",
     layout="wide",
 )
 
-# 백그라운드 스레드와 메인 스레드 간 데이터 공유를 위한 큐 (캐시 처리)
+# 커스텀 CSS로 디자인 강화
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f5f7f9;
+    }
+    .stMetric {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    </style>
+    """, unsafe_allow_stdio=True)
+
+# 백그라운드 스레드와 메인 스레드 간 데이터 공유를 위한 큐
 @st.cache_resource
 def get_msg_queue():
     return queue.Queue()
@@ -45,14 +60,19 @@ def on_message(client, userdata, msg):
     try:
         payload = json.loads(msg.payload.decode())
         payload['timestamp'] = datetime.now().strftime("%H:%M:%S")
-        # st.session_state 대신 전역 큐(msg_queue)에 저장
+        # 데이터가 문자열로 올 경우를 대비해 숫자로 변환
+        for key in ['temperature', 'humidity', 'lux', 'g_force', 'speed', 'lat', 'lng', 'yaw', 'pitch', 'roll']:
+            if key in payload:
+                try:
+                    payload[key] = float(payload[key])
+                except:
+                    pass
         msg_queue.put(payload)
     except Exception as e:
         print(f"Error parsing message: {e}")
 
 @st.cache_resource
 def start_mqtt_client():
-    # 최신 paho-mqtt 2.0 호환성 설정
     try:
         from paho.mqtt.client import CallbackAPIVersion
         client = mqtt.Client(CallbackAPIVersion.VERSION1)
@@ -70,66 +90,81 @@ mqtt_client = start_mqtt_client()
 # ----------------------------------------------------------------
 # 3. UI 구성
 # ----------------------------------------------------------------
-st.title("🚚 콜드체인 실시간 모니터링 시스템")
-st.markdown("---")
+st.title("🚚 프리미엄 콜드체인 실시간 통합 관제")
+st.markdown(f"**상태:** 데이터 수신 대기 중... (Topic: `{MQTT_TOPIC}`)")
 
 # 레이아웃 설정
-col1, col2, col3, col4 = st.columns(4)
-temp_metric = col1.empty()
-humi_metric = col2.empty()
-gforce_metric = col3.empty()
-status_metric = col4.empty()
+m1, m2, m3, m4, m5 = st.columns(5)
+temp_metric = m1.empty()
+humi_metric = m2.empty()
+lux_metric = m3.empty()
+gforce_metric = m4.empty()
+speed_metric = m5.empty()
 
-st.subheader("🌡️ 환경 데이터 변화 (온도 & 습도)")
-env_chart = st.empty()
+st.markdown("---")
 
-st.subheader("💥 충격량 변화 (G)")
-gforce_chart = st.empty()
+col_left, col_right = st.columns([1, 1])
 
-st.subheader("📋 최근 수신 로그")
-log_container = st.empty()
+with col_left:
+    st.subheader("📍 차량 현재 위치 (GPS)")
+    map_container = st.empty()
+    
+    st.subheader("💥 충격량 및 속도 변화")
+    gforce_chart = st.empty()
+
+with col_right:
+    st.subheader("🌡️ 환경 데이터 모니터링 (온도/습도/조도)")
+    env_chart = st.empty()
+    
+    st.subheader("📋 최근 시스템 로그")
+    log_container = st.empty()
 
 # ----------------------------------------------------------------
 # 4. 실시간 루프 (데이터 업데이트)
 # ----------------------------------------------------------------
 while True:
+    new_data_received = False
     while not msg_queue.empty():
         msg = msg_queue.get()
         data_history.append(msg)
-        if len(data_history) > 50:
+        new_data_received = True
+        if len(data_history) > 100:
             data_history.pop(0)
 
     if len(data_history) > 0:
         latest = data_history[-1]
+        device_type = latest.get('device', 'unknown').upper()
         
         # 상단 메트릭 업데이트
-        temp_metric.metric("현재 온도", f"{latest['temperature']} °C")
-        humi_metric.metric("현재 습도", f"{latest['humidity']} %")
-        gforce_metric.metric("현재 충격량", f"{latest['g_force']} G")
+        temp_metric.metric("온도", f"{latest.get('temperature', 0):.1f} °C")
+        humi_metric.metric("습도", f"{latest.get('humidity', 0):.1f} %")
+        lux_metric.metric("조도", f"{latest.get('lux', 0):.0f} lx")
+        gforce_metric.metric("충격량", f"{latest.get('g_force', 0):.2f} G")
+        speed_metric.metric("속도", f"{latest.get('speed', 0):.1f} km/h")
         
-        # 상태 표시
-        status = latest['status']
-        if "충돌" in status:
-            status_metric.error(f"⚠️ {status}")
-        elif "흔들림" in status:
-            status_metric.warning(f"🚚 {status}")
+        # 지도 업데이트
+        lat = latest.get('lat', 0)
+        lng = latest.get('lng', 0)
+        if lat != 0 and lng != 0:
+            map_data = pd.DataFrame({'lat': [lat], 'lon': [lng]})
+            map_container.map(map_data, zoom=15)
         else:
-            status_metric.success(f"✅ {status}")
+            map_container.info("GPS 신호를 기다리는 중입니다...")
 
         # 데이터프레임 변환
         df = pd.DataFrame(data_history)
-        df['temperature'] = df['temperature'].astype(float)
-        df['humidity'] = df['humidity'].astype(float)
-        df['g_force'] = df['g_force'].astype(float)
         df = df.set_index('timestamp')
         
-        # 개별 그래프 업데이트
-        # 온도와 습도를 하나의 그래프에 표시
+        # 환경 그래프 (온도, 습도, 조도는 스케일이 다르므로 나누거나 조절 필요)
+        # 여기서는 온도/습도만 표시하고 조도는 별도로 보거나 스케일링
         env_chart.line_chart(df[['temperature', 'humidity']])
-        # 충격량은 개별 표시
-        gforce_chart.line_chart(df['g_force'], color="#F0A30A")
+        
+        # 충격량 그래프
+        gforce_chart.line_chart(df[['g_force', 'speed']])
 
         # 로그 업데이트
-        log_container.table(df.iloc[::-1][['temperature', 'humidity', 'g_force', 'status']].head(10))
+        display_cols = ['device', 'temperature', 'humidity', 'lux', 'g_force', 'status']
+        available_cols = [c for c in display_cols if c in df.columns]
+        log_container.dataframe(df.iloc[::-1][available_cols].head(10), use_container_width=True)
 
     time.sleep(1)
