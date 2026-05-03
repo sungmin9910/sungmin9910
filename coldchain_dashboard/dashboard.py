@@ -169,6 +169,6 @@ while True:
             gforce_chart.line_chart(df[['g_force', 'speed']])
 
         # 로그
-        log_container.dataframe(df.iloc[::-1].head(10), use_container_width=True)
+        log_container.dataframe(df.iloc[::-1].head(10), width="stretch")
 
     time.sleep(1)
